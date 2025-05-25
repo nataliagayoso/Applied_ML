@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import sys
 from pathlib import Path
 from PIL import Image
@@ -6,8 +5,7 @@ import numpy as np
 
 def resize_and_normalize(input_root, output_root, size=(224, 224)):
     """
-    Resize all images under input_root to `size`, normalize pixel values to [0,1],
-    and save as .npy arrays maintaining the folder structure under output_root.
+    Resize all images, normalize pixel values to [0,1]
     """
     input_root = Path(input_root)
     output_root = Path(output_root)
