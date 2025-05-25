@@ -40,6 +40,5 @@ for split_name, (split_paths, split_labels) in splits.items():
         dest.mkdir(parents=True, exist_ok=True)
         shutil.copy2(img_path, dest / img_path.name)
 
-# 6) Summary
 for name, (split_paths, _) in splits.items():
     print(f"{name.capitalize()}: {len(split_paths)} images")
