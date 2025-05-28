@@ -6,12 +6,12 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import accuracy_score, f1_score, classification_report
 from sklearn.decomposition import PCA
 
-# 1) Paths & classes
+# Paths & classes
 SCRIPT_DIR = Path(__file__).resolve().parent
 TRAIN_DIR  = SCRIPT_DIR / 'data' / 'ProcessedResizedNorm' / 'train'
 categories = ['Cats', 'Dogs']
 
-# 2) Gather .npy filepaths & labels
+# Gather .npy filepaths & labels
 filepaths, labels = [], []
 for idx, cls in enumerate(categories):
     cls_folder = TRAIN_DIR / cls
@@ -21,12 +21,12 @@ for idx, cls in enumerate(categories):
 
 print(f"Found {len(filepaths)} samples: {labels.count(0)} Cats, {labels.count(1)} Dogs")
 
-# 3) Load and flatten into X
+# Load and flatten into X
 # Each arr might be shape (224,224,3); flatten → (224*224*3,)
 X = np.stack([np.load(p).astype(np.float32).flatten() for p in filepaths])
 Y = np.array(labels, dtype=np.int64)
 
-# 4) 5-fold CV with progress
+# 5-fold CV with progress
 skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 accuracies, f1s = [], []
 
