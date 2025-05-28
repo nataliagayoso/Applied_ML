@@ -25,7 +25,7 @@ both a Random Forest baseline and a fine-tuned ResNet CNN, and evaluate with a s
 5. **Class-Imbalance Handling**  
    - Monitor post-cleaning counts; apply oversampling or class-weighted loss if needed.
 
-## 3. Baseline Model `RandomForest.py`)
+## 3. Baseline Model (`RandomForest.py`)
 - **Preprocessing:**  
   - Resize to 64×64, flatten to 1D vectors, normalize [0,1].  
   - Optional PCA (500 components) to reduce from ~12 288 dims → 500 dims.  
