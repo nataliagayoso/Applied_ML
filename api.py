@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -8,13 +6,13 @@ from PIL import Image
 import numpy as np
 import io, joblib
 
-# 1) Load pipeline
+# Load pipeline
 MODEL_PATH = Path(__file__).resolve().parent / 'models' / 'rf_pipeline.joblib'
 if not MODEL_PATH.exists():
     raise RuntimeError(f"Model not found at {MODEL_PATH}")
 pipeline = joblib.load(MODEL_PATH)
 
-# 2) FastAPI setup
+# FastAPI setup
 app = FastAPI(
     title="Cat vs Dog Classifier",
     version="1.0",
@@ -38,7 +36,7 @@ async def predict(file: UploadFile = File(...)):
         img = Image.open(io.BytesIO(data)).convert("RGB")
     except Exception:
         raise HTTPException(400, "Invalid image file.")
-    # *** Resize to 224×224 to match training pipeline ***
+    # Resize to 224×224 to match training pipeline 
     img = img.resize((224, 224), Image.BILINEAR)
     arr = np.array(img, dtype=np.float32) / 255.0
     feats = arr.flatten().reshape(1, -1)
