@@ -1,67 +1,83 @@
-import time
 import numpy as np
+import joblib
 from pathlib import Path
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import StratifiedKFold
-from sklearn.metrics import accuracy_score, f1_score, classification_report
+from sklearn.metrics import accuracy_score, f1_score
 from sklearn.decomposition import PCA
+from sklearn.pipeline import Pipeline
 
-# Paths & classes
-SCRIPT_DIR = Path(__file__).resolve().parent
-TRAIN_DIR  = SCRIPT_DIR / 'data' / 'ProcessedResizedNorm' / 'train'
-categories = ['Cats', 'Dogs']
+# Configuration
+SCRIPT_DIR     = Path(__file__).resolve().parent
+TRAIN_DIR      = SCRIPT_DIR / 'data' / 'ProcessedResizedNorm' / 'train'
+CATEGORIES     = ['Cats', 'Dogs']
+APPLY_PCA      = True
+PCA_COMPONENTS = 100      
+RF_TREES       = 30
+KFOLD_SPLITS   = 5
 
-# Gather .npy filepaths & labels
+# Load file paths & labels
 filepaths, labels = [], []
-for idx, cls in enumerate(categories):
-    cls_folder = TRAIN_DIR / cls
-    for p in cls_folder.glob('*.npy'):
+for idx, cls in enumerate(CATEGORIES):
+    folder = TRAIN_DIR / cls
+    if not folder.exists():
+        raise FileNotFoundError(f"Missing folder: {folder}")
+    for p in folder.glob('*.npy'):
         filepaths.append(p)
         labels.append(idx)
 
 print(f"Found {len(filepaths)} samples: {labels.count(0)} Cats, {labels.count(1)} Dogs")
 
-# Load and flatten into X
-# Each arr might be shape (224,224,3); flatten → (224*224*3,)
+# Build feature matrix
 X = np.stack([np.load(p).astype(np.float32).flatten() for p in filepaths])
 Y = np.array(labels, dtype=np.int64)
 
-# 5-fold CV with progress
-skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-accuracies, f1s = [], []
+# Cross‐validation
+skf = StratifiedKFold(n_splits=KFOLD_SPLITS, shuffle=True, random_state=42)
+accs, f1s = [], []
 
 for fold, (train_idx, val_idx) in enumerate(skf.split(X, Y), 1):
-    print(f"\n=== Fold {fold}/5 ===")
-    X_train, X_val = X[train_idx], X[val_idx]
-    Y_train, Y_val = Y[train_idx], Y[val_idx]
+    X_tr, X_va = X[train_idx], X[val_idx]
+    Y_tr, Y_va = Y[train_idx], Y[val_idx]
 
-    # PCA
-    print(" - Fitting PCA ...", end="", flush=True)
-    t0 = time.time()
-    pca = PCA(n_components=500).fit(X_train)
-    X_train = pca.transform(X_train)
-    X_val   = pca.transform(X_val)
-    print(f" done in {time.time()-t0:.1f}s")
+    if APPLY_PCA:
+        pca = PCA(n_components=PCA_COMPONENTS).fit(X_tr)
+        X_tr = pca.transform(X_tr)
+        X_va = pca.transform(X_va)
 
-    # Random Forest
-    print(" - Training Random Forest ...", end="", flush=True)
-    rf = RandomForestClassifier(n_estimators=100, n_jobs=-1, verbose=1, random_state=42)
-    t1 = time.time()
-    rf.fit(X_train, Y_train)
-    print(f" done in {time.time()-t1:.1f}s")
+    rf = RandomForestClassifier(
+        n_estimators=RF_TREES,
+        max_features='sqrt',
+        n_jobs=-1,
+        random_state=42
+    )
+    rf.fit(X_tr, Y_tr)
 
-    # Evaluate
-    preds = rf.predict(X_val)
-    acc   = accuracy_score(Y_val, preds)
-    f1    = f1_score(Y_val, preds)
-    print(f" - Fold {fold} Accuracy: {acc:.3f}, F1: {f1:.3f}")
+    preds = rf.predict(X_va)
+    acc   = accuracy_score(Y_va, preds)
+    f1    = f1_score(Y_va, preds)
+    print(f"Fold {fold}: Accuracy={acc:.3f}, F1={f1:.3f}")
+    accs.append(acc); f1s.append(f1)
 
-    accuracies.append(acc)
-    f1s.append(f1)
+print(f"Overall: Accuracy={np.mean(accs):.3f}±{np.std(accs):.3f}, "
+      f"F1={np.mean(f1s):.3f}±{np.std(f1s):.3f}")
 
-# 5) Final summary
-print(f"\nOverall Accuracy: {np.mean(accuracies):.3f} ± {np.std(accuracies):.3f}")
-print(f"Overall F1-score: {np.mean(f1s):.3f} ± {np.std(f1s):.3f}\n")
-print("Classification report on last fold:")
-print(classification_report(Y_val, preds, target_names=categories))
+# Retrain on full data and save the pipeline
+pipeline = Pipeline([
+    ('pca', PCA(n_components=PCA_COMPONENTS)),
+    ('rf', RandomForestClassifier(
+        n_estimators=RF_TREES,
+        max_features='sqrt',
+        n_jobs=-1,
+        random_state=42
+    ))
+])
+pipeline.fit(X, Y)
+
+model_dir = SCRIPT_DIR / 'models'
+model_dir.mkdir(exist_ok=True)
+out_path = model_dir / 'rf_pipeline.joblib'
+joblib.dump(pipeline, out_path)
+print(f"Saved trained pipeline to {out_path}")
+
 
