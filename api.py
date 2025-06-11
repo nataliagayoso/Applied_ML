@@ -9,7 +9,7 @@ import torch
 from cnn_model import load_cnn_model
 from predict_utils import preprocess_image
 
-# --- Load models ---
+#  Load models 
 rf_model_path = Path(__file__).resolve().parent / 'models' / 'rf_pipeline.joblib'
 if not rf_model_path.exists():
     raise RuntimeError(f"Random Forest model not found at {rf_model_path}")
@@ -17,7 +17,7 @@ rf_pipeline = joblib.load(rf_model_path)
 
 cnn_model, DEVICE = load_cnn_model()
 
-# --- FastAPI app setup ---
+#  FastAPI app setup 
 app = FastAPI(
     title="Cat vs Dog Classifier (Random Forest + CNN)",
     version="2.0",
