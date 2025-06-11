@@ -22,6 +22,7 @@ SEED       = 42
 BATCH_SIZE = 32
 EPOCHS     = 10
 LR         = 1e-4
+PATIENCE   = 3
 if torch.cuda.is_available():
     DEVICE = torch.device('cuda')
 elif torch.backends.mps.is_available():  
@@ -96,6 +97,8 @@ optimizer = optim.Adam(model.parameters(), lr=LR)
 train_losses = []
 val_accuracies = []
 val_f1_scores = []
+best_f1 = 0
+patience_counter = 0
 
 for epoch in range(EPOCHS):
     model.train()
@@ -129,6 +132,15 @@ for epoch in range(EPOCHS):
     val_f1_scores.append(f1)
 
     print(f"Epoch {epoch+1:02d}: Loss={avg_loss:.4f} | Accuracy={acc:.3f} | F1={f1:.3f}")
+
+    if f1 > best_f1:
+        best_f1 = f1
+        patience_counter = 0
+    else:
+        patience_counter += 1
+        if patience_counter >= PATIENCE:
+            print(f"Early stopping at epoch {epoch+1} (No F1 imporvement in {PATIENCE} epochs)")
+            break
 
 print("\n" + "="*50)
 print("TRAINING SUMMARY")
