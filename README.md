@@ -4,7 +4,6 @@
 - Natalie Mladenova – s5161517 
 - Natalia Gayoso – s5221218   
 - Raul Ardelean – s5237688  
-- Mohammed Usman Sarki – s5528178
 
 ## 1. Overview
 We build a machine-learning pipeline to distinguish cats from dogs in images. Using a real-world 
