@@ -24,7 +24,7 @@ EPOCHS     = 10
 LR         = 1e-4
 if torch.cuda.is_available():
     DEVICE = torch.device('cuda')
-elif torch.backends.mps.is_available():  # Apple Silicon (M1/M2)
+elif torch.backends.mps.is_available():  
     DEVICE = torch.device('mps')
 else:
     DEVICE = torch.device('cpu')
