@@ -97,6 +97,15 @@ FastAPI-powered REST API for classifying images of cats and dogs using two model
 ### Running the API
 uvicorn api:app --reload
 
+Should see message like:
+
+Uvicorn running on http://127.0.0.1:8000 
+
+Then:
+
+Swagger UI: http://127.0.0.1:8000/docs – for interactive testing
+
+
 ### Endpoints
 - GET /
      {"status": "running"}
