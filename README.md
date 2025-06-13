@@ -119,6 +119,7 @@ uvicorn api:app --reload
 
 ### Error Handling 
 Invalid or missing files return 400 Bad Request
+
 All errors include a clear JSON message, e.g.: {"detail": "Only image files accepted."}
 
 
