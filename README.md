@@ -87,6 +87,44 @@ both a Random Forest baseline and a fine-tuned ResNet CNN, and evaluate with a s
 - Grad-CAM provides visual interpretability.  
 - RF remains faster but weaker in performance.
 
+## API Usage
+FastAPI-powered REST API for classifying images of cats and dogs using two models:
+
+- Random Forest (baseline)
+
+- CNN (Convolutional Neural Network) with optional Grad-CAM visualization
+
+### Running the API
+uvicorn api:app --reload
+
+### Endpoints
+- GET /
+     {"status": "running"}
+- POST /predict_rf
+  {
+  "label": "Cat",
+  "probability": 0.87
+   }
+- POST /predict_cnn
+  {
+  "label": "Dog",
+  "probability": 0.91
+  }
+- POST /predict_cnn_cam
+  {
+  "label": "Dog",
+  "probability": 0.91,
+  "gradcam": "<base64_encoded_image>"
+   }
+
+### Error Handling 
+Invalid or missing files return 400 Bad Request
+All errors include a clear JSON message, e.g.: {"detail": "Only image files accepted."}
+
+
+
+
+
   
 ## Installation
 Install the required packages: 
