@@ -5,3 +5,6 @@ fastapi
 uvicorn
 pillow
 python-multipart
+torch
+torchvision
+pytorch-gradcam
