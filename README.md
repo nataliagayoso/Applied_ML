@@ -26,7 +26,7 @@ both a Random Forest baseline and a fine-tuned ResNet CNN, and evaluate with a s
 
 ## 3. Baseline Model (`RandomForest.py`)
 - **Preprocessing:**  
-  - Resize to 64×64, flatten to 1D vectors, normalize [0,1].  
+  - Resize to 224x224, flatten to 1D vectors, normalize [0,1].  
   - Optional PCA (500 components) to reduce from ~12 288 dims → 500 dims.  
 - **Model:**  
   - 100-tree Random Forest, 5-fold stratified CV.  
