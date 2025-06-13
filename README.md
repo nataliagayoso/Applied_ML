@@ -41,8 +41,53 @@ both a Random Forest baseline and a fine-tuned ResNet CNN, and evaluate with a s
   | **Mean ± Std** | **0.611 ± 0.003** | **0.605 ± 0.005** |  
 - **Baseline Insight:** ≈61 % accuracy, consistent across folds; serves as a reference.
 
-## 7. Proposed CNN Model
+## 4. Proposed CNN Model (cnn1.py)
+- **Architecture:**  
+  - Basic CNN with 3 convolutional layers, each followed by ReLU activation and max pooling.  
+  - Two fully connected layers for classification.
 
+- **Preprocessing:**  
+  - Images resized to 224×224, normalized to [0, 1].  
+  - Augmentation (only during training): horizontal flip, small rotations.
+
+- **Training:**  
+  - Adam optimizer, CrossEntropyLoss, 10 epochs, batch size of 32.  
+  - Early stopping based on validation F1-score (patience = 3 epochs).  
+  - Metrics logged per epoch: loss, accuracy, F1-score.
+
+- **Explainability:**  
+  - Grad-CAM visualizations added for 3 random validation samples, can be modified to use more, using the final convolutional layer.  
+  - Helps identify what parts of the image influenced the model's predictions.
+ 
+- **Results:**  
+  | Epoch | Accuracy | F1-score | Loss |
+  |:-----:|:--------:|:--------:|:----:|
+  | 1   |   0.726    |   0.727    | 0.6136  |
+  | 2   |   0.754    |   0.748    | 0.5373  |
+  | 3   |   0.787    |   0.794    | 0.4837  |
+  | 4   |   0.805    |   0.800    | 0.4483  |
+  | 5   |   0.816    |   0.805    | 0.4215  |
+  | 6   |   0.821    |   0.828    | 0.4005  |
+  | 7   |   0.830    |   0.821    | 0.3809  |
+  | 8   |   0.838    |   0.834    | 0.3663  |
+  | 9   |   0.833    |   0.843    | 0.3497  |
+  | 10   |   0.842    |   0.852    | 0.3363  |
+  | **Mean ± Std** | **0.805 ± 0.037** | **0.805 ± 0.039** | **0.434 ± 0.084** |
+
+  > *Model consistently outperforms the Random Forest baseline by ~19% in accuracy.*
+
+## 5. Comparison & Evaluation
+
+| Model           | Accuracy (± std) | Confidence Interval | Inference | Explainability |
+|----------------|------------------|------------------|-----------|----------------|
+| Random Forest  | 0.611 ± 0.003    | [0.608, 0.614]    | Fast      | ✗              |
+| CNN + Grad-CAM | 0.805 ± 0.037    | [0.782, 0.828]    | Slower    | ✓ (Grad-CAM)   |
+
+- CNN shows a clear performance boost.  
+- Grad-CAM provides visual interpretability.  
+- RF remains faster but weaker in performance.
+
+  
 ## Installation
 Install the required packages: 
 pip install -r requirements.txt
